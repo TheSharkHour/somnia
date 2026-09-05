@@ -1,6 +1,7 @@
 package com.shark.somnia.client.gui.screen;
 
 import com.shark.somnia.client.gui.widget.OptionToggleWidget;
+import com.shark.somnia.core.Somnia;
 import com.shark.somnia.core.util.SomniaUtils;
 import com.shark.somnia.mixin.LivingEntityAccessor;
 import com.shark.somnia.mixin.WorldAccessor;
@@ -18,27 +19,34 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.Random;
 
+/**
+ * @author TheSharkHour
+ * @since 09/04/2026
+ * <p>
+ *     Client-side screen that shows up when you use a bed.
+ * </p>
+ */
 @Environment(EnvType.CLIENT)
 public class SomniaBedScreen extends Screen {
-    private static final int TIME_SUNRISE_BEFORE = 22200;
-    private static final int TIME_SUNRISE_MIDDLE = 23100;
-    private static final int TIME_SUNRISE_AFTER = 0;
-    private static final int TIME_MORNING_EARLY = 1500;
-    private static final int TIME_MORNING_MIDDLE = 3000;
-    private static final int TIME_MORNING_LATE = 4500;
-    private static final int TIME_MIDDAY = 6000;
-    private static final int TIME_AFTERNOON_EARLY = 7500;
-    private static final int TIME_AFTERNOON_MIDDLE = 9000;
-    private static final int TIME_AFTERNOON_LATE = 10500;
-    private static final int TIME_SUNSET_BEFORE = 12000;
-    private static final int TIME_SUNSET_MIDDLE = 12900;
-    private static final int TIME_SUNSET_AFTER = 13800;
-    private static final int TIME_MIDNIGHT_BEFORE = 16000;
-    private static final int TIME_MIDNIGHT = 18000;
-    private static final int TIME_MIDNIGHT_AFTER = 20000;
-    private static final int TIME_DAWN = 23400;
-    private static final int TIME_DUSK = 12600;
-    private static final int DAY_LENGTH = 24000;
+    private static final int TIME_SUNRISE_AFTER     = 0;
+    private static final int TIME_MORNING_EARLY     = 1500;
+    private static final int TIME_MORNING_MIDDLE    = 3000;
+    private static final int TIME_MORNING_LATE      = 4500;
+    private static final int TIME_MIDDAY            = 6000;
+    private static final int TIME_AFTERNOON_EARLY   = 7500;
+    private static final int TIME_AFTERNOON_MIDDLE  = 9000;
+    private static final int TIME_AFTERNOON_LATE    = 10500;
+    private static final int TIME_SUNSET_BEFORE     = 12000;
+    private static final int TIME_DUSK              = 12600;
+    private static final int TIME_SUNSET_MIDDLE     = 12900;
+    private static final int TIME_SUNSET_AFTER      = 13800;
+    private static final int TIME_MIDNIGHT_BEFORE   = 16000;
+    private static final int TIME_MIDNIGHT          = 18000;
+    private static final int TIME_MIDNIGHT_AFTER    = 20000;
+    private static final int TIME_SUNRISE_BEFORE    = 22200;
+    private static final int TIME_SUNRISE_MIDDLE    = 23100;
+    private static final int TIME_DAWN              = 23400;
+    private static final int DAY_LENGTH             = 24000;
 
     private final PlayerEntity player;
     private boolean keepSleeping;
@@ -54,10 +62,46 @@ public class SomniaBedScreen extends Screen {
     private int lastPlayerHealth;
     private int originalSaveInternal;
 
+    /**
+     * Main constructor
+     * @param player Player
+     * @param bedInfo Bed Information, such as Coordinates
+     */
     public SomniaBedScreen(PlayerEntity player, SomniaUtils.BedInfo bedInfo) {
         this.player = player;
         this.keepSleeping = false;
         this.bedInfo = bedInfo;
+    }
+
+    /**
+     * Render method.<br>
+     * This displays the "Sleep until" text, as well as formatted in-game time.
+     * @param mouseX Mouse X position
+     * @param mouseY Mouse Y Position
+     * @param delta Partial ticks
+     */
+    @Override
+    public void render(int mouseX, int mouseY, float delta) {
+        renderBackground();
+
+        String msg = hasClock ? "Sleep until...?" : "Sleep until " + getNextTransitionString() + "?";
+
+        drawCenteredTextWithShadow(textRenderer, msg, width / 2, height / 2 - 4, 0xffffff);
+
+        if (hasClock) {
+            drawCenteredTextWithShadow(textRenderer, SomniaUtils.getCurrentFormattedTime(bedInfo), width / 2, height / 2 - 70, 0xffffff);
+        }
+
+        super.render(mouseX, mouseY, delta);
+    }
+
+    /**
+     * A helper method to get the transition time.
+     * @return Returns the transition strings.
+     */
+    private String getNextTransitionString() {
+        int nextTransition = getNextTransitionTime();
+        return getString(nextTransition);
     }
 
     @Override
@@ -65,6 +109,10 @@ public class SomniaBedScreen extends Screen {
         return false;
     }
 
+    /**
+     * Screen initialization.<br>
+     * This is used to create all of the buttons, and to "recline" the player.
+     */
     @Override
     public void init() {
         this.hasClock = SomniaUtils.isClockEquipped(player);
@@ -104,21 +152,40 @@ public class SomniaBedScreen extends Screen {
         }
     }
 
+    /**
+     * A helper method to create an "option" button.
+     * @param id Button ID
+     * @param x Button X position
+     * @param y Button Y position
+     * @param text Displayed text
+     * @return a new button widget
+     */
     private OptionButtonWidget createOption(int id, int x, int y, String text) {
         return new OptionButtonWidget(id, x - 50, y - 10, 100, 20, text);
     }
 
+    /**
+     * A helper method to make a new toggle button.
+     * @param id Button ID
+     * @param x Button X position
+     * @param y Button Y position
+     * @return a new toggle widget
+     */
     private OptionToggleWidget createSpawnCheckbox(int id, int x, int y) {
         return new OptionToggleWidget(id, x - 50, y - 10, 100, 20, "Reset spawn", SomniaUtils.SET_SPAWN);
     }
 
+    /**
+     * Button handling.<br>
+     * This handles each button's wake time, and other special functions.
+     * @param button
+     */
     @Override
     protected void buttonClicked(ButtonWidget button) {
         int wakeTime = -1;
         boolean closeGui = true;
 
         if (SomniaUtils.isPlayerReclining(bedInfo, player)) {
-            closeGui = false;
             switch (button.id) {
                 case 0 -> wakeTime = getNextTransitionTime();
                 case 1 -> closeGui = !keepSleeping;
@@ -149,12 +216,16 @@ public class SomniaBedScreen extends Screen {
             }
 
             sleepUntil(wakeTime);
-        } else
-
-        if (closeGui)
-            wake();
+        } else {
+            if (closeGui)
+                wake();
+        }
     }
 
+    /**
+     * A helper method to wake the player.<br>
+     * Also plays a hurt or death sound if it's needed.
+     */
     private void wake() {
         SomniaUtils.setBedOccupied(bedInfo,false);
         minecraft.setScreen(null);
@@ -180,6 +251,11 @@ public class SomniaBedScreen extends Screen {
         }
     }
 
+    /**
+     * A helper method to sleep until a certain point.<br>
+     * Also handles healing, the sleep loading, and more.
+     * @param wakeTime
+     */
     private void sleepUntil(int wakeTime) {
         int sleepDuration = getTimeUntil(wakeTime);
         beforeSleep(sleepDuration);
@@ -206,7 +282,6 @@ public class SomniaBedScreen extends Screen {
         world.allowSpawning(world.difficulty > 0, true);
         keepSleeping = true;
 
-        System.out.println("sleepDuration is " + sleepDuration);
         while (sleepingScreen.getTicksElapsed() < sleepDuration
                 && !player.dead && player.health >= lastPlayerHealth
                 && keepSleeping) {
@@ -229,6 +304,10 @@ public class SomniaBedScreen extends Screen {
         afterSleep();
     }
 
+    /**
+     * A helper method to handle after-sleep.<br>
+     * Also resets the simulated content to -1.
+     */
     private void afterSleep() {
         minecraft.options.setFloat(Option.SOUND, originalSoundVolume);
         minecraft.options.fancyGraphics = originalFancyGraphics;
@@ -238,6 +317,11 @@ public class SomniaBedScreen extends Screen {
 
         if (!player.dead) playHurtSound = player.health < lastPlayerHealth;
         else playDeathSound = true;
+
+        SomniaUtils.simulatedBlockTicks = -1;
+        SomniaUtils.simulatedRadius = -1;
+
+        wake();
     }
 
     @Override
@@ -257,6 +341,11 @@ public class SomniaBedScreen extends Screen {
         super.keyPressed(character, keyCode);
     }
 
+    /**
+     * A helper method to set a string based on the time of day.
+     * @param timeOfDay The time of day
+     * @return the relevant time string.
+     */
     private String getString(int timeOfDay) {
         return switch (timeOfDay) {
             case TIME_SUNRISE_AFTER -> "after sunrise";
@@ -281,6 +370,11 @@ public class SomniaBedScreen extends Screen {
         };
     }
 
+    /**
+     * A helper method to handle BEFORE sleeping.<br>
+     * Also (temporarily) disables audio, fancy graphics, and save interval.
+     * @param sleepDuration How long to sleep for.
+     */
     private void beforeSleep(int sleepDuration) {
         originalSoundVolume = minecraft.options.getFloat(Option.SOUND);
         originalFancyGraphics = minecraft.options.fancyGraphics;
@@ -293,6 +387,9 @@ public class SomniaBedScreen extends Screen {
 
         int tempSaveInterval = calculateDisabledSaveInterval(world.getTime(), sleepDuration);
         ((WorldAccessor) world).somnia$setSaveInterval(tempSaveInterval);
+
+        SomniaUtils.simulatedBlockTicks = Somnia.CONFIG_OPTIMIZATIONS.randomBlockTicks;
+        SomniaUtils.simulatedRadius = Somnia.CONFIG_OPTIMIZATIONS.radius;
     }
 
     private int calculateDisabledSaveInterval(long worldTime, int sleepDuration) {

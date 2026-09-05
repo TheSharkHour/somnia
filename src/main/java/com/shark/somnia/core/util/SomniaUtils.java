@@ -17,6 +17,8 @@ import net.minecraft.world.World;
 
 public class SomniaUtils {
     public static boolean SET_SPAWN = true;
+    public static volatile int simulatedBlockTicks = -1;
+    public static volatile int simulatedRadius = -1;
 
     public static boolean isClockEquipped(PlayerEntity player) {
         if (!Somnia.CONFIG.clockNeeded) return true;
@@ -136,7 +138,7 @@ public class SomniaUtils {
     public static void tryOpenGui(PlayerEntity player, int x, int y, int z) {
         Material m = player.world.getMaterial(x, y + 1, z);
         if (!m.isSolid() && !m.isFluid()) openGui(player, x, y, z);
-        else MinecraftAccessor.getInstance().inGameHud.addChatMessage("Bed is blocked");
+        else player.sendMessage("Bed is blocked");
     }
 
     @Environment(EnvType.CLIENT)

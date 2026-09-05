@@ -12,6 +12,9 @@ public class Somnia implements ModInitializer {
     @ConfigRoot(value = "main", visibleName = "Main Options", index = 0)
     public static final SomniaConfig.MainConfig CONFIG = new SomniaConfig.MainConfig();
 
+    @ConfigRoot(value = "optimizations", visibleName = "Optimizations", index = 1)
+    public static final SomniaConfig.OptimizationConfig CONFIG_OPTIMIZATIONS = new SomniaConfig.OptimizationConfig();
+
     @Override
     public void onInitialize() {
         LOGGER.info("SomniaMod has been loaded.");

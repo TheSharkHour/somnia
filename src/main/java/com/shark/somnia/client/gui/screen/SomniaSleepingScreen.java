@@ -9,9 +9,17 @@ import net.minecraft.client.gui.widget.OptionButtonWidget;
 import net.minecraft.client.render.ProgressRenderError;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.ScreenScaler;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * @author TheSharkHour
+ * @since 09/04/2026
+ * <p>
+ *     Client-side loading screen for sleeping.
+ * </p>
+ */
 @Environment(EnvType.CLIENT)
 public class SomniaSleepingScreen implements LoadingDisplay {
     Minecraft minecraft;
@@ -41,7 +49,7 @@ public class SomniaSleepingScreen implements LoadingDisplay {
 
     public void progressStart(String title) {
         noAbort = false;
-        start(this.title);
+        start(title);
     }
 
     private void start(String title) {
@@ -146,6 +154,15 @@ public class SomniaSleepingScreen implements LoadingDisplay {
 
                 this.minecraft.textRenderer.drawWithShadow(this.title, (screenWidth - this.minecraft.textRenderer.getWidth(this.title)) / 2, screenHeight / 2 - 44, 0xffffff);
                 this.minecraft.textRenderer.drawWithShadow(this.stage, (screenWidth - this.minecraft.textRenderer.getWidth(this.stage)) / 2, screenHeight / 2 - 4, 0xffffff);
+
+                int bx = 0;
+                int by = 0;
+                if (Mouse.isInsideWindow()) {
+                    bx = Mouse.getX() * screenWidth / minecraft.displayWidth;
+                    by = screenHeight - Mouse.getY() * screenHeight / minecraft.displayHeight - 1;
+                }
+
+                this.wakeButton.render(minecraft, bx, by);
                 Display.update();
 
                 try {
