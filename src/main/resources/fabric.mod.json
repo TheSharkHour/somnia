@@ -1,12 +1,15 @@
 {
   "schemaVersion": 1,
-  "id": "%s",
+  "id": "somnia",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Somnia",
+  "description": "A sleep simulation mod for beta 1.7.3. Ported to StationAPI/Babric.",
   "authors": [
-    "Me!"
+    "TheSharkHour"
+  ],
+  "contributors": [
+    "MALfunction84 (Original Mod)"
   ],
   "contact": {
     "homepage": "https://glass-launcher.net/",
@@ -14,20 +17,25 @@
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/%s/icon.png",
+  "icon": "assets/somnia/icon.png",
 
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "com.shark.somnia.core.Somnia"
+    ],
     "stationapi:event_bus": [
-      "%s.events.init.InitListener"
     ],
     "stationapi:event_bus_client": [
     ],
     "stationapi:event_bus_server": [
+    ],
+    "gcapi3": [
+      "com.shark.somnia.core.Somnia"
     ]
   },
   "mixins": [
-    "%s.mixins.json"
+    "somnia.mixins.json"
   ],
 
   "depends": {
