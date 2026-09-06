@@ -163,6 +163,7 @@ public class SomniaSleepingScreen implements LoadingDisplay {
                 }
 
                 this.wakeButton.render(minecraft, bx, by);
+
                 Display.update();
 
                 try {

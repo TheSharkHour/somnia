@@ -19,6 +19,7 @@ public class SomniaUtils {
     public static boolean SET_SPAWN = true;
     public static volatile int simulatedBlockTicks = -1;
     public static volatile int simulatedRadius = -1;
+    public static volatile boolean isSimulating = false;
 
     public static boolean isClockEquipped(PlayerEntity player) {
         if (!Somnia.CONFIG.clockNeeded) return true;

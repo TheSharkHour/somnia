@@ -262,7 +262,7 @@ public class SomniaBedScreen extends Screen {
 
         World world = minecraft.world;
 
-        OptionButtonWidget wakeButton = createOption(2, width / 2, height / 2 + 22, "Wake up");
+        OptionButtonWidget wakeButton = createOption(2, width / 2, height / 2 + 32, "Wake up");
         buttons.add(wakeButton);
 
         long timeStart = System.currentTimeMillis();
@@ -294,6 +294,7 @@ public class SomniaBedScreen extends Screen {
             world.tick();
             sleepingScreen.tick();
             tickInput();
+            SomniaUtils.isSimulating = true;
 
             if (sleepingScreen.getTicksElapsed() % 10 == 0) {
                 Box.resetCacheCount();
@@ -320,6 +321,8 @@ public class SomniaBedScreen extends Screen {
 
         SomniaUtils.simulatedBlockTicks = -1;
         SomniaUtils.simulatedRadius = -1;
+
+        SomniaUtils.isSimulating = false;
 
         wake();
     }
